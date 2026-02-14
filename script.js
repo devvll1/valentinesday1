@@ -1,3 +1,15 @@
+// Envelope opening
+window.addEventListener('load', () => {
+    const envelope = document.getElementById('envelopeOverlay');
+    
+    envelope.addEventListener('click', () => {
+        envelope.classList.add('open');
+        setTimeout(() => {
+            envelope.style.display = 'none';
+        }, 800);
+    });
+});
+
 let currentImageIndex = 0;
 const images = ['duck', 'duck1', 'duck2', 'duck3', 'fern1', 'fern2', 'fern3'];
 
