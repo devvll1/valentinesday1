@@ -51,14 +51,14 @@ function showImageSequence() {
     setTimeout(() => {
         // Check if this is the last image (fern3) before removing
         if (currentImageIndex === images.length - 1) {
-            // Start falling effects while last image is visible
-            triggerFallingEffects();
+            // Remove image immediately
+            imageContainer.remove();
+            currentImageIndex = 0;
             
-            // Remove container after falling effects complete
+            // Start falling effects after image is removed
             setTimeout(() => {
-                imageContainer.remove();
-                currentImageIndex = 0;
-            }, 4500);
+                triggerFallingEffects();
+            }, 500);
         } else {
             imageContainer.remove();
             currentImageIndex++;
@@ -69,7 +69,7 @@ function showImageSequence() {
 
 function triggerFallingEffects() {
     // Create falling ducks, purple flowers, and hearts
-    const duration = 8000; // 4 seconds of falling effects
+    const duration = 4000; // 4 seconds of falling effects
     const startTime = Date.now();
     
     const fallingItems = [
@@ -87,34 +87,44 @@ function triggerFallingEffects() {
         
         const selectedItem = fallingItems[Math.floor(Math.random() * fallingItems.length)];
         item.textContent = selectedItem.emoji;
-        item.style.position = 'absolute';
-        item.style.left = Math.random() * 100 + '%';
-        item.style.top = '-50px';
-        item.style.fontSize = (Math.random() * 2 + 1.5) + 'em';
-        item.style.pointerEvents = 'none';
-        item.style.zIndex = '1500';
-        item.style.userSelect = 'none';
+        item.style.cssText = `
+            position: absolute;
+            left: ${Math.random() * 100}%;
+            top: -50px;
+            font-size: ${Math.random() * 2 + 1.5}em;
+            pointer-events: none;
+            z-index: 1500;
+            user-select: none;
+            will-change: transform, opacity;
+            transform: translate3d(0, 0, 0);
+        `;
         
         container.appendChild(item);
         
         let top = -50;
         const speed = Math.random() * 2 + 1.5;
         const xMovement = (Math.random() - 0.5) * 150;
+        let animationRunning = true;
         
-        const animate = setInterval(() => {
+        function animateFrame() {
+            if (!animationRunning) return;
+            
             top += speed;
             const progress = top / 700;
             const xPos = xMovement * progress;
             
             item.style.opacity = Math.max(0, 1 - progress);
-            item.style.transform = `translateY(${top}px) translateX(${xPos}px) rotate(${progress * 180}deg)`;
+            item.style.transform = `translate3d(${xPos}px, ${top}px, 0) rotate(${progress * 180}deg)`;
             
             if (top > 700) {
-                clearInterval(animate);
+                animationRunning = false;
                 item.remove();
+            } else {
+                requestAnimationFrame(animateFrame);
             }
-        }, 30);
+        }
         
+        requestAnimationFrame(animateFrame);
         setTimeout(createFallingItem, 100);
     }
     
